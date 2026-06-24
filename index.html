@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Control Panel - FSL Philippines</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #f0b90b;
+            --primary-dark: #d4a309;
+            --bg: #0a0a1a;
+            --card: #141428;
+            --card-hover: #1a1a3a;
+            --text: #ffffff;
+            --text2: #8899bb;
+            --border: #2a2a4a;
+            --success: #00c853;
+            --danger: #f44336;
+            --warning: #ff9800;
+            --info: #2196f3;
+        }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            padding: 20px 0;
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-header .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-header .logo span {
+            background: var(--primary);
+            color: #000;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+        
+        .sidebar-header .sub {
+            font-size: 12px;
+            color: var(--text2);
+            margin-top: 4px;
+        }
+        
+        .nav-item {
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text2);
+            text-decoration: none;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-item:hover {
+            background: var(--card-hover);
+            color: var(--text);
+        }
+        
+        .nav-item.active {
+            background: var(--card-hover);
+            color: var(--primary);
+            border-left-color: var(--primary);
+        }
+        
+        .nav-item .icon {
+            font-size: 20px;
+            width: 28px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 24px;
+            min-height: 100vh;
+        }
+        
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: var(--card);
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+        }
+        
+        .top-bar h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .top-bar .stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: var(--text2);
+        }
+        
+        .top-bar .stats strong {
+            color: var(--text);
+        }
+        
+        /* Dashboard Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .stat-card .label {
+            font-size: 12px;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+        
+        .stat-card .value.gold {
+            color: var(--primary);
+        }
+        .stat-card .value.green {
+            color: var(--success);
+        }
+        .stat-card .value.red {
+            color: var(--danger);
+        }
+        .stat-card .value.orange {
+            color: var(--warning);
+        }
+        
+        /* Tables */
+        .table-container {
+            background: var(--card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-header h3 {
+            font-size: 16px;
+        }
+        
+        .table-header .actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .table-wrap {
+            overflow-x: auto;
+            padding: 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 12px;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+            background: var(--card-hover);
+        }
+        
+        table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+        
+        table tr:hover td {
+            background: var(--card-hover);
+        }
+        
+        .badge {
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .badge-approved {
+            background: rgba(0, 200, 83, 0.2);
+            color: var(--success);
+        }
+        .badge-pending {
+            background: rgba(255, 152, 0, 0.2);
+            color: var(--warning);
+        }
+        .badge-rejected {
+            background: rgba(244, 67, 54, 0.2);
+            color: var(--danger);
+        }
+        .badge-waiting {
+            background: rgba(33, 150, 243, 0.2);
+            color: var(--info);
+        }
+        .badge-none {
+            background: rgba(136, 153, 187, 0.2);
+            color: var(--text2);
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: #000;
+        }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: scale(1.02);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: #fff;
+        }
+        .btn-success:hover {
+            opacity: 0.8;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+        }
+        .btn-danger:hover {
+            opacity: 0.8;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: #000;
+        }
+        .btn-warning:hover {
+            opacity: 0.8;
+        }
+        
+        .btn-info {
+            background: var(--info);
+            color: #fff;
+        }
+        .btn-info:hover {
+            opacity: 0.8;
+        }
+        
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 11px;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid var(--border);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-content h3 {
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+        
+        .modal-content .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .modal-content .form-group label {
+            display: block;
+            font-size: 13px;
+            color: var(--text2);
+            margin-bottom: 6px;
+        }
+        
+        .modal-content .form-group input,
+        .modal-content .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px;
+        }
+        
+        .modal-content .form-group input:focus,
+        .modal-content .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .modal-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+        
+        /* Search & Filter */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .search-box input {
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px;
+            width: 200px;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        /* Login Overlay */
+        .login-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-overlay.hidden {
+            display: none;
+        }
+        
+        .login-box {
+            background: var(--card);
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            width: 100%;
+            max-width: 380px;
+        }
+        
+        .login-box .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        .login-box .sub {
+            color: var(--text2);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .login-box .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .login-box .form-group label {
+            display: block;
+            font-size: 13px;
+            color: var(--text2);
+            margin-bottom: 6px;
+        }
+        
+        .login-box .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 15px;
+        }
+        
+        .login-box .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .login-box .btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            justify-content: center;
+        }
+        
+        /* Tabs */
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            z-index: 9998;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s;
+            max-width: 400px;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success {
+            border-color: var(--success);
+        }
+        .toast.error {
+            border-color: var(--danger);
+        }
+        .toast.warning {
+            border-color: var(--warning);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+                padding: 10px 0;
+            }
+            .sidebar-header .logo span,
+            .sidebar-header .sub,
+            .nav-item span:not(.icon) {
+                display: none;
+            }
+            .sidebar-header .logo {
+                font-size: 14px;
+                justify-content: center;
+            }
+            .nav-item {
+                padding: 12px;
+                justify-content: center;
+            }
+            .nav-item .icon {
+                font-size: 22px;
+            }
+            .main-content {
+                margin-left: 60px;
+                padding: 12px;
+            }
+            .top-bar {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+                text-align: center;
+            }
+            .search-box input {
+                width: 100%;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .modal-content {
+                padding: 20px;
+            }
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text2);
+        }
+        
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login Overlay -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box">
+            <div class="logo">🛡️ FSL Admin</div>
+            <div class="sub">Control Panel • Philippines</div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="loginUser" placeholder="Enter username" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPass" placeholder="Enter password" value="0">
+                </div>
+                <button type="submit" class="btn btn-primary">🔐 Login to Admin</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                🛡️ FSL
+                <span>ADMIN</span>
+            </div>
+            <div class="sub">Control Panel v3.0</div>
+        </div>
+        <nav>
+            <div class="nav-item active" onclick="showTab('dashboard')">
+                <span class="icon">📊</span>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item" onclick="showTab('users')">
+                <span class="icon">👥</span>
+                <span>Users</span>
+            </div>
+            <div class="nav-item" onclick="showTab('loans')">
+                <span class="icon">💰</span>
+                <span>Loans</span>
+            </div>
+            <div class="nav-item" onclick="showTab('withdrawals')">
+                <span class="icon">🏧</span>
+                <span>Withdrawals</span>
+            </div>
+            <div class="nav-item" onclick="showTab('transactions')">
+                <span class="icon">📈</span>
+                <span>Transactions</span>
+            </div>
+            <div class="nav-item" onclick="showTab('settings')">
+                <span class="icon">⚙️</span>
+                <span>Settings</span>
+            </div>
+            <div class="nav-item" onclick="logout()" style="margin-top:20px;border-top:1px solid var(--border);padding-top:20px;color:var(--danger);">
+                <span class="icon">🚪</span>
+                <span>Logout</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <h2 id="pageTitle">📊 Dashboard</h2>
+            <div class="stats">
+                <span>👤 <strong id="adminUser">Admin</strong></span>
+                <span>🕐 <strong id="clock">--:--:--</strong></span>
+            </div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="tab-dashboard" class="tab-content active">
+            <div class="stats-grid" id="dashboardStats">
+                <div class="stat-card">
+                    <div class="label">Total Users</div>
+                    <div class="value gold" id="totalUsers">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Active Loans</div>
+                    <div class="value orange" id="activeLoans">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Approved Loans</div>
+                    <div class="value green" id="approvedLoans">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Total Balance</div>
+                    <div class="value gold" id="totalBalance">₱0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Pending Withdrawals</div>
+                    <div class="value orange" id="pendingWithdrawals">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Total Transactions</div>
+                    <div class="value" id="totalTransactions">0</div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>📋 Recent Activity</h3>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentActivity">
+                            <tr>
+                                <td colspan="5" class="empty-state">
+                                    <div class="icon">📭</div>
+                                    No recent activity
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="tab-users" class="tab-content">
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>👥 All Users</h3>
+                    <div class="actions">
+                        <div class="search-box">
+                            <input type="text" id="userSearch" placeholder="Search users..." oninput="filterUsers()">
+                        </div>
+                        <button class="btn btn-primary" onclick="openAddUserModal()">➕ Add User</button>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Slot</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Balance</th>
+                                <th>Loan Status</th>
+                                <th>Verified</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable">
+                            <tr>
+                                <td colspan="7" class="empty-state">
+                                    <div class="icon">👥</div>
+                                    No users found
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loans Tab -->
+        <div id="tab-loans" class="tab-content">
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>💰 Loan Applications</h3>
+                    <div class="actions">
+                        <select id="loanFilter" onchange="filterLoans()" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);">
+                            <option value="all">All Status</option>
+                            <option value="none">No Loan</option>
+                            <option value="waiting">Waiting</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Slot</th>
+                                <th>User</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loansTable">
+                            <tr>
+                                <td colspan="6" class="empty-state">
+                                    <div class="icon">💰</div>
+                                    No loan applications
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Withdrawals Tab -->
+        <div id="tab-withdrawals" class="tab-content">
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>🏧 Withdrawal Requests</h3>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Slot</th>
+                                <th>User</th>
+                                <th>Amount</th>
+                                <th>Bank/Wallet</th>
+                                <th>Account</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="withdrawalsTable">
+                            <tr>
+                                <td colspan="7" class="empty-state">
+                                    <div class="icon">🏧</div>
+                                    No withdrawal requests
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions Tab -->
+        <div id="tab-transactions" class="tab-content">
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>📈 Transaction History</h3>
+                    <div class="actions">
+                        <button class="btn btn-primary" onclick="refreshTransactions()">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Slot</th>
+                                <th>User</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Description</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsTable">
+                            <tr>
+                                <td colspan="6" class="empty-state">
+                                    <div class="icon">📈</div>
+                                    No transactions
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="tab-settings" class="tab-content">
+            <div class="stats-grid" style="grid-template-columns:1fr 1fr;">
+                <div class="stat-card">
+                    <h3 style="margin-bottom:12px;">⚙️ Admin Settings</h3>
+                    <div class="form-group" style="margin-bottom:12px;">
+                        <label style="color:var(--text2);font-size:13px;">Change Password</label>
+                        <div style="display:flex;gap:10px;">
+                            <input type="password" id="newPassword" placeholder="New password" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);">
+                            <button class="btn btn-primary" onclick="changePassword()">Update</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label style="color:var(--text2);font-size:13px;">Database Actions</label>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                            <button class="btn btn-warning" onclick="exportData()">📤 Export Data</button>
+                            <button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All Data</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h3 style="margin-bottom:12px;">📊 System Info</h3>
+                    <div style="color:var(--text2);font-size:14px;line-height:2;">
+                        <div>📦 <strong style="color:var(--text);">Version:</strong> 3.0.0</div>
+                        <div>👤 <strong style="color:var(--text);">Admin:</strong> <span id="settingsAdmin">admin</span></div>
+                        <div>📅 <strong style="color:var(--text);">Uptime:</strong> <span id="uptime">--</span></div>
+                        <div>👥 <strong style="color:var(--text);">Total Users:</strong> <span id="settingsTotalUsers">0</span></div>
+                        <div>💰 <strong style="color:var(--text);">Total Balance:</strong> <span id="settingsTotalBalance">₱0</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal" id="addUserModal">
+        <div class="modal-content">
+            <h3>➕ Add New User</h3>
+            <form id="addUserForm">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="addFullName" placeholder="Enter full name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="addEmail" placeholder="Enter email" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="text" id="addPassword" placeholder="Enter password" required>
+                </div>
+                <div class="form-group">
+                    <label>ID Name</label>
+                    <input type="text" id="addIdName" placeholder="Name on ID">
+                </div>
+                <div class="form-group">
+                    <label>ID Number</label>
+                    <input type="text" id="addIdNumber" placeholder="ID Number">
+                </div>
+                <div class="form-group">
+                    <label>Initial Balance</label>
+                    <input type="number" id="addBalance" value="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Verified</label>
+                    <select id="addVerified">
+                        <option value="true">✅ Verified</option>
+                        <option value="false">❌ Not Verified</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-success">➕ Create User</button>
+                    <button type="button" class="btn btn-danger" onclick="closeModal('addUserModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div class="modal" id="editUserModal">
+        <div class="modal-content">
+            <h3>✏️ Edit User</h3>
+            <form id="editUserForm">
+                <input type="hidden" id="editSlot">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="editFullName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="editEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="text" id="editPassword" placeholder="Leave blank to keep current">
+                </div>
+                <div class="form-group">
+                    <label>Balance</label>
+                    <input type="number" id="editBalance" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Loan Status</label>
+                    <select id="editLoanStatus">
+                        <option value="none">No Loan</option>
+                        <option value="waiting">Waiting</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Loan Amount</label>
+                    <input type="number" id="editLoanAmount" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Verified</label>
+                    <select id="editVerified">
+                        <option value="true">✅ Verified</option>
+                        <option value="false">❌ Not Verified</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-success">💾 Save Changes</button>
+                    <button type="button" class="btn btn-danger" onclick="closeModal('editUserModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <h3 id="confirmTitle">⚠️ Confirm Action</h3>
+            <p id="confirmMessage" style="color:var(--text2);margin-bottom:20px;">Are you sure you want to proceed?</p>
+            <div class="modal-actions">
+                <button class="btn btn-danger" id="confirmBtn">Confirm</button>
+                <button class="btn btn-secondary" onclick="closeModal('confirmModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        //  STATE
+        // ============================================================
+        let users = [];
+        let transactions = [];
+        let withdrawals = [];
+        let isLoggedIn = false;
+        let confirmCallback = null;
+        let editingSlot = null;
+        let adminPassword = '0';
+        let adminUser = '0';
+
+        // ============================================================
+        //  INIT
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            updateClock();
+            setInterval(updateClock, 1000);
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('addUserForm').addEventListener('submit', handleAddUser);
+            document.getElementById('editUserForm').addEventListener('submit', handleEditUser);
+            
+            // Check if already logged in
+            if (localStorage.getItem('adminLoggedIn') === 'true') {
+                document.getElementById('loginOverlay').classList.add('hidden');
+                isLoggedIn = true;
+                refreshAll();
+            }
+        });
+
+        // ============================================================
+        //  LOGIN
+        // ============================================================
+        function handleLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('loginUser').value;
+            const pass = document.getElementById('loginPass').value;
+            
+            if (user === adminUser && pass === adminPassword) {
+                document.getElementById('loginOverlay').classList.add('hidden');
+                isLoggedIn = true;
+                localStorage.setItem('adminLoggedIn', 'true');
+                localStorage.setItem('adminUser', user);
+                refreshAll();
+                showToast('✅ Login successful!', 'success');
+                document.getElementById('adminUser').textContent = user;
+            } else {
+                showToast('❌ Invalid credentials!', 'error');
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                isLoggedIn = false;
+                localStorage.removeItem('adminLoggedIn');
+                localStorage.removeItem('adminUser');
+                document.getElementById('loginOverlay').classList.remove('hidden');
+                document.getElementById('loginUser').value = '0';
+                document.getElementById('loginPass').value = '0';
+                showToast('Logged out successfully', 'info');
+            }
+        }
+
+        // ============================================================
+        //  DATA MANAGEMENT
+        // ============================================================
+        function loadData() {
+            // Load users from localStorage
+            const stored = localStorage.getItem('fsl_v5');
+            if (stored) {
+                try {
+                    const data = JSON.parse(stored);
+                    users = Object.entries(data).map(([slot, user]) => ({
+                        slot: parseInt(slot),
+                        ...user
+                    }));
+                } catch (e) {
+                    users = [];
+                }
+            } else {
+                // Create default admin user
+                const defaultUser = {
+                    '1': {
+                        email: 'admin@fsl.com',
+                        password: 'admin123',
+                        balance: 100000,
+                        loanStatus: 'none',
+                        loanAmount: 0,
+                        fullName: 'Admin User',
+                        idName: 'Admin',
+                        idNumber: 'ADMIN001',
+                        verified: true
+                    }
+                };
+                localStorage.setItem('fsl_v5', JSON.stringify(defaultUser));
+                users = Object.entries(defaultUser).map(([slot, user]) => ({
+                    slot: parseInt(slot),
+                    ...user
+                }));
+            }
+
+            // Load transactions
+            const txn = localStorage.getItem('fsl_transactions');
+            if (txn) {
+                try {
+                    transactions = JSON.parse(txn);
+                } catch (e) {
+                    transactions = [];
+                }
+            } else {
+                transactions = [];
+                localStorage.setItem('fsl_transactions', JSON.stringify(transactions));
+            }
+
+            // Load withdrawals
+            const wd = localStorage.getItem('fsl_withdrawals');
+            if (wd) {
+                try {
+                    withdrawals = JSON.parse(wd);
+                } catch (e) {
+                    withdrawals = [];
+                }
+            } else {
+                withdrawals = [];
+                localStorage.setItem('fsl_withdrawals', JSON.stringify(withdrawals));
+            }
+
+            // Load admin settings
+            const adminSettings = localStorage.getItem('fsl_admin_settings');
+            if (adminSettings) {
+                try {
+                    const settings = JSON.parse(adminSettings);
+                    adminPassword = settings.password || '0';
+                    adminUser = settings.username || '0';
+                } catch (e) {}
+            }
+        }
+
+        function saveUsers() {
+            const data = {};
+            users.forEach(u => {
+                data[u.slot] = {
+                    email: u.email,
+                    password: u.password,
+                    balance: u.balance,
+                    loanStatus: u.loanStatus || 'none',
+                    loanAmount: u.loanAmount || 0,
+                    fullName: u.fullName || '',
+                    idName: u.idName || '',
+                    idNumber: u.idNumber || '',
+                    verified: u.verified || false
+                };
+            });
+            localStorage.setItem('fsl_v5', JSON.stringify(data));
+        }
+
+        function saveTransactions() {
+            localStorage.setItem('fsl_transactions', JSON.stringify(transactions));
+        }
+
+        function saveWithdrawals() {
+            localStorage.setItem('fsl_withdrawals', JSON.stringify(withdrawals));
+        }
+
+        function saveAdminSettings() {
+            localStorage.setItem('fsl_admin_settings', JSON.stringify({
+                username: adminUser,
+                password: adminPassword
+            }));
+        }
+
+        function addTransaction(slot, type, amount, description) {
+            const user = users.find(u => u.slot === slot);
+            transactions.push({
+                slot: slot,
+                user: user ? user.fullName || user.email : 'Unknown',
+                type: type,
+                amount: amount,
+                description: description || '',
+                date: new Date().toISOString()
+            });
+            saveTransactions();
+        }
+
+        // ============================================================
+        //  REFRESH UI
+        // ============================================================
+        function refreshAll() {
+            refreshDashboard();
+            refreshUsers();
+            refreshLoans();
+            refreshWithdrawals();
+            refreshTransactions();
+            refreshSettings();
+        }
+
+        function refreshDashboard() {
+            const total = users.length;
+            const active = users.filter(u => u.loanStatus === 'waiting' || u.loanStatus === 'pending').length;
+            const approved = users.filter(u => u.loanStatus === 'approved').length;
+            const totalBal = users.reduce((sum, u) => sum + (u.balance || 0), 0);
+            const pendingWd = withdrawals.filter(w => w.status === 'pending').length;
+            const totalTxn = transactions.length;
+
+            document.getElementById('totalUsers').textContent = total;
+            document.getElementById('activeLoans').textContent = active;
+            document.getElementById('approvedLoans').textContent = approved;
+            document.getElementById('totalBalance').textContent = '₱' + totalBal.toLocaleString();
+            document.getElementById('pendingWithdrawals').textContent = pendingWd;
+            document.getElementById('totalTransactions').textContent = totalTxn;
+
+            // Recent Activity
+            const recent = [...transactions].reverse().slice(0, 10);
+            const tbody = document.getElementById('recentActivity');
+            if (recent.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="empty-state"><div class="icon">📭</div>No recent activity</td></tr>`;
+            } else {
+                tbody.innerHTML = recent.map(t => `
+                    <tr>
+                        <td>${t.user || 'Slot ' + t.slot}</td>
+                        <td>${t.type || 'Transaction'}</td>
+                        <td>${t.amount ? '₱' + Number(t.amount).toLocaleString() : '-'}</td>
+                        <td><span class="badge badge-approved">${t.status || 'Completed'}</span></td>
+                        <td>${new Date(t.date).toLocaleString()}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function refreshUsers() {
+            const search = document.getElementById('userSearch').value.toLowerCase();
+            let filtered = users;
+            if (search) {
+                filtered = users.filter(u => 
+                    (u.fullName && u.fullName.toLowerCase().includes(search)) ||
+                    (u.email && u.email.toLowerCase().includes(search)) ||
+                    String(u.slot).includes(search)
+                );
+            }
+
+            const tbody = document.getElementById('usersTable');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="empty-state"><div class="icon">👥</div>No users found</td></tr>`;
+            } else {
+                tbody.innerHTML = filtered.map(u => `
+                    <tr>
+                        <td><strong>#${u.slot}</strong></td>
+                        <td>${u.fullName || '—'}</td>
+                        <td>${u.email || '—'}</td>
+                        <td>₱${(u.balance || 0).toLocaleString()}</td>
+                        <td><span class="badge badge-${u.loanStatus || 'none'}">${u.loanStatus || 'none'}</span></td>
+                        <td>${u.verified ? '✅ Yes' : '❌ No'}</td>
+                        <td>
+                            <button class="btn btn-info btn-sm" onclick="editUser(${u.slot})">✏️</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.slot})">🗑️</button>
+                            <button class="btn btn-success btn-sm" onclick="addBalance(${u.slot})">➕</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function filterUsers() {
+            refreshUsers();
+        }
+
+        function refreshLoans() {
+            const filter = document.getElementById('loanFilter').value;
+            let filtered = users.filter(u => u.loanStatus && u.loanStatus !== 'none');
+            if (filter !== 'all') {
+                filtered = filtered.filter(u => u.loanStatus === filter);
+            }
+
+            const tbody = document.getElementById('loansTable');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="empty-state"><div class="icon">💰</div>No loan applications</td></tr>`;
+            } else {
+                tbody.innerHTML = filtered.map(u => `
+                    <tr>
+                        <td><strong>#${u.slot}</strong></td>
+                        <td>${u.fullName || u.email || '—'}</td>
+                        <td>₱${(u.loanAmount || 0).toLocaleString()}</td>
+                        <td><span class="badge badge-${u.loanStatus}">${u.loanStatus}</span></td>
+                        <td>—</td>
+                        <td>
+                            ${u.loanStatus === 'waiting' || u.loanStatus === 'pending' ? `
+                                <button class="btn btn-success btn-sm" onclick="approveLoan(${u.slot})">✅ Approve</button>
+                                <button class="btn btn-danger btn-sm" onclick="rejectLoan(${u.slot})">❌ Reject</button>
+                            ` : ''}
+                            ${u.loanStatus === 'approved' ? `
+                                <button class="btn btn-warning btn-sm" onclick="resetLoan(${u.slot})">🔄 Reset</button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function filterLoans() {
+            refreshLoans();
+        }
+
+        function refreshWithdrawals() {
+            const tbody = document.getElementById('withdrawalsTable');
+            if (withdrawals.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="empty-state"><div class="icon">🏧</div>No withdrawal requests</td></tr>`;
+            } else {
+                tbody.innerHTML = withdrawals.map(w => `
+                    <tr>
+                        <td><strong>#${w.slot}</strong></td>
+                        <td>${w.user || '—'}</td>
+                        <td>₱${(w.amount || 0).toLocaleString()}</td>
+                        <td>${w.bank || '—'}</td>
+                        <td>${w.account || '—'}</td>
+                        <td><span class="badge badge-${w.status === 'pending' ? 'waiting' : 'approved'}">${w.status}</span></td>
+                        <td>
+                            ${w.status === 'pending' ? `
+                                <button class="btn btn-success btn-sm" onclick="approveWithdrawal(${w.id})">✅ Approve</button>
+                                <button class="btn btn-danger btn-sm" onclick="rejectWithdrawal(${w.id})">❌ Reject</button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function refreshTransactions() {
+            const tbody = document.getElementById('transactionsTable');
+            if (transactions.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="empty-state"><div class="icon">📈</div>No transactions</td></tr>`;
+            } else {
+                const sorted = [...transactions].reverse();
+                tbody.innerHTML = sorted.map(t => `
+                    <tr>
+                        <td><strong>#${t.slot}</strong></td>
+                        <td>${t.user || '—'}</td>
+                        <td><span class="badge badge-${t.type === 'Withdrawal' ? 'warning' : 'approved'}">${t.type || '—'}</span></td>
+                        <td>${t.amount ? '₱' + Number(t.amount).toLocaleString() : '—'}</td>
+                        <td>${t.description || '—'}</td>
+                        <td>${new Date(t.date).toLocaleString()}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function refreshSettings() {
+            document.getElementById('settingsAdmin').textContent = adminUser;
+            document.getElementById('settingsTotalUsers').textContent = users.length;
+            const total = users.reduce((sum, u) => sum + (u.balance || 0), 0);
+            document.getElementById('settingsTotalBalance').textContent = '₱' + total.toLocaleString();
+            
+            // Uptime
+            const start = localStorage.getItem('adminStartTime');
+            if (start) {
+                const diff = Date.now() - parseInt(start);
+                const hours = Math.floor(diff / 3600000);
+                const mins = Math.floor((diff % 3600000) / 60000);
+                document.getElementById('uptime').textContent = hours + 'h ' + mins + 'm';
+            } else {
+                localStorage.setItem('adminStartTime', String(Date.now()));
+                document.getElementById('uptime').textContent = 'Just started';
+            }
+        }
+
+        function refreshTransactions() {
+            refreshTransactions();
+        }
+
+        // ============================================================
+        //  TAB NAVIGATION
+        // ============================================================
+        function showTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.querySelector(`.nav-item[onclick="showTab('${tab}')"]`).classList.add('active');
+            
+            const titles = {
+                dashboard: '📊 Dashboard',
+                users: '👥 User Management',
+                loans: '💰 Loan Management',
+                withdrawals: '🏧 Withdrawal Management',
+                transactions: '📈 Transaction History',
+                settings: '⚙️ Settings'
+            };
+            document.getElementById('pageTitle').textContent = titles[tab] || tab;
+            
+            if (tab === 'dashboard') refreshDashboard();
+            else if (tab === 'users') refreshUsers();
+            else if (tab === 'loans') refreshLoans();
+            else if (tab === 'withdrawals') refreshWithdrawals();
+            else if (tab === 'transactions') refreshTransactions();
+            else if (tab === 'settings') refreshSettings();
+        }
+
+        // ============================================================
+        //  USER MANAGEMENT
+        // ============================================================
+        function openAddUserModal() {
+            document.getElementById('addUserModal').classList.add('active');
+        }
+
+        function handleAddUser(e) {
+            e.preventDefault();
+            
+            const fullName = document.getElementById('addFullName').value.trim();
+            const email = document.getElementById('addEmail').value.trim();
+            const password = document.getElementById('addPassword').value.trim();
+            const idName = document.getElementById('addIdName').value.trim();
+            const idNumber = document.getElementById('addIdNumber').value.trim();
+            const balance = parseFloat(document.getElementById('addBalance').value) || 0;
+            const verified = document.getElementById('addVerified').value === 'true';
+            
+            if (!fullName || !email || !password) {
+                showToast('Please fill in required fields', 'error');
+                return;
+            }
+            
+            if (users.find(u => u.email === email)) {
+                showToast('Email already exists!', 'error');
+                return;
+            }
+            
+            // Find available slot
+            const usedSlots = new Set(users.map(u => u.slot));
+            let slot = 1;
+            while (usedSlots.has(slot)) slot++;
+            
+            const newUser = {
+                slot: slot,
+                email: email,
+                password: password,
+                balance: balance,
+                loanStatus: 'none',
+                loanAmount: 0,
+                fullName: fullName,
+                idName: idName || fullName,
+                idNumber: idNumber || 'N/A',
+                verified: verified
+            };
+            
+            users.push(newUser);
+            saveUsers();
+            addTransaction(slot, 'Admin', balance, 'Account created by admin');
+            
+            closeModal('addUserModal');
+            document.getElementById('addUserForm').reset();
+            refreshAll();
+            showToast('✅ User added successfully!', 'success');
+        }
+
+        function editUser(slot) {
+            const user = users.find(u => u.slot === slot);
+            if (!user) return;
+            
+            editingSlot = slot;
+            document.getElementById('editSlot').value = slot;
+            document.getElementById('editFullName').value = user.fullName || '';
+            document.getElementById('editEmail').value = user.email || '';
+            document.getElementById('editPassword').value = '';
+            document.getElementById('editBalance').value = user.balance || 0;
+            document.getElementById('editLoanStatus').value = user.loanStatus || 'none';
+            document.getElementById('editLoanAmount').value = user.loanAmount || 0;
+            document.getElementById('editVerified').value = user.verified ? 'true' : 'false';
+            
+            document.getElementById('editUserModal').classList.add('active');
+        }
+
+        function handleEditUser(e) {
+            e.preventDefault();
+            
+            const slot = parseInt(document.getElementById('editSlot').value);
+            const user = users.find(u => u.slot === slot);
+            if (!user) return;
+            
+            const fullName = document.getElementById('editFullName').value.trim();
+            const email = document.getElementById('editEmail').value.trim();
+            const password = document.getElementById('editPassword').value.trim();
+            const balance = parseFloat(document.getElementById('editBalance').value) || 0;
+            const loanStatus = document.getElementById('editLoanStatus').value;
+            const loanAmount = parseFloat(document.getElementById('editLoanAmount').value) || 0;
+            const verified = document.getElementById('editVerified').value === 'true';
+            
+            if (!fullName || !email) {
+                showToast('Name and email are required', 'error');
+                return;
+            }
+            
+            const oldBalance = user.balance || 0;
+            
+            user.fullName = fullName;
+            user.email = email;
+            if (password) user.password = password;
+            user.balance = balance;
+            user.loanStatus = loanStatus;
+            user.loanAmount = loanAmount;
+            user.verified = verified;
+            
+            saveUsers();
+            
+            if (balance !== oldBalance) {
+                addTransaction(slot, 'Admin', balance - oldBalance, 'Balance updated by admin');
+            }
+            
+            closeModal('editUserModal');
+            refreshAll();
+            showToast('✅ User updated successfully!', 'success');
+        }
+
+        function deleteUser(slot) {
+            showConfirm(
+                '🗑️ Delete User',
+                `Are you sure you want to delete user #${slot}? This action cannot be undone.`,
+                function() {
+                    users = users.filter(u => u.slot !== slot);
+                    saveUsers();
+                    refreshAll();
+                    showToast('✅ User deleted successfully', 'success');
+                }
+            );
+        }
+
+        function addBalance(slot) {
+            const amount = prompt('Enter amount to add (negative for subtract):');
+            if (amount === null) return;
+            
+            const num = parseFloat(amount);
+            if (isNaN(num)) {
+                showToast('Invalid amount', 'error');
+                return;
+            }
+            
+            const user = users.find(u => u.slot === slot);
+            if (!user) return;
+            
+            user.balance = (user.balance || 0) + num;
+            saveUsers();
+            addTransaction(slot, 'Admin', num, num >= 0 ? 'Balance added by admin' : 'Balance deducted by admin');
+            refreshAll();
+            showToast(`✅ ${num >= 0 ? 'Added' : 'Deducted'} ₱${Math.abs(num).toLocaleString()}`, 'success');
+        }
+
+        // ============================================================
+        //  LOAN MANAGEMENT
+        // ============================================================
+        function approveLoan(slot) {
+            showConfirm(
+                '✅ Approve Loan',
+                `Are you sure you want to approve the loan for user #${slot}?`,
+                function() {
+                    const user = users.find(u => u.slot === slot);
+                    if (!user) return;
+                    
+                    const amount = user.loanAmount || 0;
+                    user.loanStatus = 'approved';
+                    user.balance = (user.balance || 0) + amount;
+                    saveUsers();
+                    addTransaction(slot, 'Loan Approved', amount, 'Loan approved by admin');
+                    refreshAll();
+                    showToast(`✅ Loan approved! ₱${amount.toLocaleString()} credited.`, 'success');
+                }
+            );
+        }
+
+        function rejectLoan(slot) {
+            showConfirm(
+                '❌ Reject Loan',
+                `Are you sure you want to reject the loan for user #${slot}?`,
+                function() {
+                    const user = users.find(u => u.slot === slot);
+                    if (!user) return;
+                    
+                    user.loanStatus = 'rejected';
+                    user.loanAmount = 0;
+                    saveUsers();
+                    refreshAll();
+                    showToast('❌ Loan rejected', 'error');
+                }
+            );
+        }
+
+        function resetLoan(slot) {
+            showConfirm(
+                '🔄 Reset Loan',
+                `Reset loan for user #${slot}? This will set status to "none".`,
+                function() {
+                    const user = users.find(u => u.slot === slot);
+                    if (!user) return;
+                    
+                    user.loanStatus = 'none';
+                    user.loanAmount = 0;
+                    saveUsers();
+                    refreshAll();
+                    showToast('🔄 Loan reset', 'info');
+                }
+            );
+        }
+
+        // ============================================================
+        //  WITHDRAWAL MANAGEMENT
+        // ============================================================
+        function approveWithdrawal(id) {
+            showConfirm(
+                '✅ Approve Withdrawal',
+                'Are you sure you want to approve this withdrawal?',
+                function() {
+                    const wd = withdrawals.find(w => w.id === id);
+                    if (!wd) return;
+                    
+                    wd.status = 'approved';
+                    saveWithdrawals();
+                    addTransaction(wd.slot, 'Withdrawal Approved', -wd.amount, 'Withdrawal approved by admin');
+                    refreshAll();
+                    showToast(`✅ Withdrawal of ₱${wd.amount.toLocaleString()} approved`, 'success');
+                }
+            );
+        }
+
+        function rejectWithdrawal(id) {
+            showConfirm(
+                '❌ Reject Withdrawal',
+                'Are you sure you want to reject this withdrawal?',
+                function() {
+                    const wd = withdrawals.find(w => w.id === id);
+                    if (!wd) return;
+                    
+                    wd.status = 'rejected';
+                    saveWithdrawals();
+                    // Refund balance
+                    const user = users.find(u => u.slot === wd.slot);
+                    if (user) {
+                        user.balance = (user.balance || 0) + wd.amount;
+                        saveUsers();
+                    }
+                    refreshAll();
+                    showToast('❌ Withdrawal rejected. Balance refunded.', 'error');
+                }
+            );
+        }
+
+        // ============================================================
+        //  SETTINGS
+        // ============================================================
+        function changePassword() {
+            const newPass = document.getElementById('newPassword').value.trim();
+            if (!newPass || newPass.length < 1) {
+                showToast('Please enter a password', 'error');
+                return;
+            }
+            
+            adminPassword = newPass;
+            saveAdminSettings();
+            document.getElementById('newPassword').value = '';
+            showToast('✅ Password updated successfully!', 'success');
+        }
+
+        function exportData() {
+            const data = {
+                users: users,
+                transactions: transactions,
+                withdrawals: withdrawals,
+                exportedAt: new Date().toISOString(),
+                version: '3.0.0'
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `fsl_backup_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('📤 Data exported successfully!', 'success');
+        }
+
+        function clearAllData() {
+            showConfirm(
+                '⚠️ DANGER: Clear All Data',
+                'This will permanently delete ALL users, transactions, and withdrawals! Are you absolutely sure?',
+                function() {
+                    users = [];
+                    transactions = [];
+                    withdrawals = [];
+                    saveUsers();
+                    saveTransactions();
+                    saveWithdrawals();
+                    refreshAll();
+                    showToast('🗑️ All data cleared!', 'error');
+                }
+            );
+        }
+
+        // ============================================================
+        //  MODAL HELPERS
+        // ============================================================
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function showConfirm(title, message, callback) {
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmBtn').onclick = function() {
+                closeModal('confirmModal');
+                if (callback) callback();
+            };
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        // ============================================================
+        //  TOAST
+        // ============================================================
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show ' + type;
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => {
+                toast.className = 'toast';
+            }, 3000);
+        }
+
+        // ============================================================
+        //  CLOCK
+        // ============================================================
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toLocaleTimeString('en-PH', { hour12: false });
+        }
+
+        // ============================================================
+        //  CLOSE MODALS ON OVERLAY CLICK
+        // ============================================================
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        console.log('%c🛡️ FSL Admin Panel v3.0', 'color:#f0b90b;font-size:20px;font-weight:bold;');
+        console.log('%c🔑 Default Login: user="0" password="0"', 'color:#8899bb;font-size:14px;');
+        console.log('%c📚 Commands available in console:', 'color:#8899bb;font-size:12px;');
+        console.log('  - users: View all users');
+        console.log('  - transactions: View all transactions');
+        console.log('  - withdrawals: View all withdrawals');
+        console.log('  - admin: Admin functions');
+        console.log('%c✅ Ready!', 'color:#00c853;font-size:14px;font-weight:bold;');
+    </script>
+
+</body>
+</html>
